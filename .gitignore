@@ -29,9 +29,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# Ignore lock files
-.terraform.lock.hcl
-
 # Ignore any local environment files
 .env
 .env.local
