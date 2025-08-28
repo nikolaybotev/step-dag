@@ -6,69 +6,69 @@ resource "aws_sfn_state_machine" "hello_world_sf" {
   definition = jsonencode({
     Comment = "A Hello World Step Function workflow with Airflow DAG trigger"
     StartAt = "HelloWorld"
-    
+
     States = {
       "HelloWorld" = {
-        Type = "Task"
+        Type     = "Task"
         Resource = aws_lambda_function.hello_world_lambda.arn
-        Next = "WaitState"
+        Next     = "WaitState"
         Catch = [
           {
             ErrorEquals = ["States.ALL"]
-            Next = "ErrorHandler"
+            Next        = "ErrorHandler"
           }
         ]
       }
-      
+
       "WaitState" = {
-        Type = "Wait"
+        Type    = "Wait"
         Seconds = 5
-        Next = "TimestampState"
+        Next    = "TimestampState"
       }
-      
+
       "TimestampState" = {
-        Type = "Task"
+        Type     = "Task"
         Resource = aws_lambda_function.timestamp_lambda.arn
-        Next = "TriggerAirflowDAG"
+        Next     = "TriggerAirflowDAG"
         Catch = [
           {
             ErrorEquals = ["States.ALL"]
-            Next = "ErrorHandler"
+            Next        = "ErrorHandler"
           }
         ]
       }
 
       "TriggerAirflowDAG" = {
-        Type = "Task"
+        Type     = "Task"
         Resource = aws_lambda_function.trigger_dag_lambda.arn
-        Next = "ChoiceState"
+        Next     = "ChoiceState"
         Catch = [
           {
             ErrorEquals = ["States.ALL"]
-            Next = "ErrorHandler"
+            Next        = "ErrorHandler"
           }
         ]
       }
-      
+
       "ChoiceState" = {
         Type = "Choice"
         Choices = [
           {
-            Variable = "$.success"
+            Variable      = "$.success"
             BooleanEquals = true
-            Next = "SuccessState"
+            Next          = "SuccessState"
           }
         ]
         Default = "ErrorHandler"
       }
-      
+
       "SuccessState" = {
-        Type = "Succeed"
+        Type    = "Succeed"
         Comment = "Workflow completed successfully"
       }
-      
+
       "ErrorHandler" = {
-        Type = "Fail"
+        Type  = "Fail"
         Cause = "An error occurred during execution"
         Error = "WorkflowError"
       }
@@ -132,16 +132,16 @@ resource "aws_iam_role_policy" "step_function_policy" {
 
 # Lambda Function for Hello World Task
 resource "aws_lambda_function" "hello_world_lambda" {
-  filename         = "lambda/hello_world.zip"
-  function_name    = "${var.project_name}-${var.environment}-hello-world"
-  role            = aws_iam_role.lambda_role.arn
-  handler         = "index.lambda_handler"
-  runtime         = "python3.9"
-  timeout         = 30
+  filename      = "lambda/hello_world.zip"
+  function_name = "${var.project_name}-${var.environment}-hello-world"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "index.lambda_handler"
+  runtime       = var.lambda_runtime
+  timeout       = 30
 
   environment {
     variables = {
-      ENVIRONMENT = var.environment
+      ENVIRONMENT  = var.environment
       PROJECT_NAME = var.project_name
     }
   }
@@ -155,16 +155,16 @@ resource "aws_lambda_function" "hello_world_lambda" {
 
 # Lambda Function for Timestamp Task
 resource "aws_lambda_function" "timestamp_lambda" {
-  filename         = "lambda/timestamp.zip"
-  function_name    = "${var.project_name}-${var.environment}-timestamp"
-  role            = aws_iam_role.lambda_role.arn
-  handler         = "index.lambda_handler"
-  runtime         = "python3.9"
-  timeout         = 30
+  filename      = "lambda/timestamp.zip"
+  function_name = "${var.project_name}-${var.environment}-timestamp"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "index.lambda_handler"
+  runtime       = var.lambda_runtime
+  timeout       = 30
 
   environment {
     variables = {
-      ENVIRONMENT = var.environment
+      ENVIRONMENT  = var.environment
       PROJECT_NAME = var.project_name
     }
   }

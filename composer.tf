@@ -2,37 +2,37 @@
 resource "google_composer_environment" "composer_env" {
   name   = "${var.project_name}-${var.environment}-composer"
   region = var.gcp_region
-  
+
   config {
     software_config {
       image_version = var.composer_image_version
-      
+
       # Airflow configuration overrides for Composer 3
       airflow_config_overrides = {
         core-dags_are_paused_at_creation = "True"
       }
-      
+
       # Environment variables
       env_variables = {
-        ENVIRONMENT = var.environment
+        ENVIRONMENT  = var.environment
         PROJECT_NAME = var.project_name
       }
-      
+
       # Python dependencies (optional)
       # pypi_packages = {
       #   "pandas" = "==2.0.3"
       #   "numpy"  = "==1.24.3"
       # }
     }
-    
+
     node_config {
       network    = google_compute_network.composer_network.id
       subnetwork = google_compute_subnetwork.composer_subnet.id
-      
+
       # Service account for Composer
       service_account = google_service_account.composer_sa.email
     }
-    
+
     # Worker configuration for Composer 3
     workloads_config {
       scheduler {
@@ -40,13 +40,13 @@ resource "google_composer_environment" "composer_env" {
         memory_gb  = 2.0
         storage_gb = 1
       }
-      
+
       web_server {
         cpu        = 0.5
         memory_gb  = 2.0
         storage_gb = 1
       }
-      
+
       worker {
         cpu        = 1
         memory_gb  = 4.0
@@ -70,12 +70,12 @@ resource "google_compute_subnetwork" "composer_subnet" {
   ip_cidr_range = "10.0.0.0/24"
   region        = var.gcp_region
   network       = google_compute_network.composer_network.id
-  
+
   # Enable flow logs for monitoring
   log_config {
     aggregation_interval = "INTERVAL_5_SEC"
-    flow_sampling       = 0.5
-    metadata            = "INCLUDE_ALL_METADATA"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
   }
 }
 
@@ -116,7 +116,7 @@ resource "google_storage_bucket_object" "hello_world_dag" {
   name   = "dags/hello_world_dag.py"
   bucket = replace(replace(google_composer_environment.composer_env.config[0].dag_gcs_prefix, "/dags", ""), "gs://", "")
   source = "${path.module}/dags/hello_world_dag.py"
-  
+
   # Use the actual Composer DAGs bucket
   depends_on = [google_composer_environment.composer_env]
 }

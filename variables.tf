@@ -68,9 +68,16 @@ variable "composer_node_count" {
   type        = number
   default     = 1
 }
+
+# Lambda Variables
+variable "lambda_runtime" {
+  description = "Python runtime version for Lambda functions"
+  type        = string
+  default     = "python3.12"
+}
 variable "airflow_webserver_secret_key" {
   description = "Secret key for Airflow webserver security"
   type        = string
   sensitive   = true
-  default     = "your-secret-key-here"  # You'll need to set this in terraform.tfvars
+  default     = "your-secret-key-here" # You'll need to set this in terraform.tfvars
 }

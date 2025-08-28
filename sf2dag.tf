@@ -1,20 +1,20 @@
 # Lambda Function for Triggering Airflow DAG
 resource "aws_lambda_function" "trigger_dag_lambda" {
-  filename         = "lambda/trigger_dag.zip"
-  function_name    = "${var.project_name}-${var.environment}-trigger-dag"
-  role            = aws_iam_role.trigger_dag_lambda_role.arn
-  handler         = "index.lambda_handler"
-  runtime         = "python3.9"
-  timeout         = 60
+  filename      = "lambda/trigger_dag.zip"
+  function_name = "${var.project_name}-${var.environment}-trigger-dag"
+  role          = aws_iam_role.trigger_dag_lambda_role.arn
+  handler       = "index.lambda_handler"
+  runtime       = var.lambda_runtime
+  timeout       = 60
 
   environment {
     variables = {
-      ENVIRONMENT = var.environment
-      PROJECT_NAME = var.project_name
-      GCP_PROJECT_ID = var.gcp_project_id
-      GCP_REGION = var.gcp_region
+      ENVIRONMENT          = var.environment
+      PROJECT_NAME         = var.project_name
+      GCP_PROJECT_ID       = var.gcp_project_id
+      GCP_REGION           = var.gcp_region
       COMPOSER_ENVIRONMENT = "${var.project_name}-${var.environment}-composer"
-      DAG_ID = "hello_world_dag"
+      DAG_ID               = "hello_world_dag"
     }
   }
 
@@ -66,17 +66,17 @@ resource "google_iam_workload_identity_pool" "aws_pool" {
 resource "google_iam_workload_identity_pool_provider" "aws_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.aws_pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "aws-provider"
-  
+
   aws {
     account_id = data.aws_caller_identity.current.account_id
   }
-  
+
   attribute_mapping = {
-    "google.subject"       = "assertion.sub"
-    "attribute.aws_role"   = "assertion.arn"
+    "google.subject"        = "assertion.sub"
+    "attribute.aws_role"    = "assertion.arn"
     "attribute.aws_account" = "assertion.account"
   }
-  
+
   attribute_condition = "attribute.aws_account == \"${data.aws_caller_identity.current.account_id}\""
 }
 
