@@ -29,7 +29,7 @@ def create_lambda_package(source_dir, output_zip):
 
 def clean_build_artifacts():
     """Remove existing build artifacts."""
-    artifacts = ['hello_world.zip', 'timestamp.zip']
+    artifacts = ['hello_world.zip', 'timestamp.zip', 'trigger_dag.zip']
     for artifact in artifacts:
         if os.path.exists(artifact):
             os.remove(artifact)
@@ -45,11 +45,13 @@ def main():
     # Build each Lambda function
     create_lambda_package('hello_world', 'hello_world.zip')
     create_lambda_package('timestamp', 'timestamp.zip')
+    create_lambda_package('trigger_dag', 'trigger_dag.zip')
     
     print("\nBuild completed successfully!")
     print("Generated files:")
     print("  - hello_world.zip")
     print("  - timestamp.zip")
+    print("  - trigger_dag.zip")
 
 if __name__ == "__main__":
     main()

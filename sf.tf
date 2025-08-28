@@ -4,7 +4,7 @@ resource "aws_sfn_state_machine" "hello_world_sf" {
   role_arn = aws_iam_role.step_function_role.arn
 
   definition = jsonencode({
-    Comment = "A Hello World Step Function workflow"
+    Comment = "A Hello World Step Function workflow with Airflow DAG trigger"
     StartAt = "HelloWorld"
     
     States = {
@@ -29,6 +29,18 @@ resource "aws_sfn_state_machine" "hello_world_sf" {
       "TimestampState" = {
         Type = "Task"
         Resource = aws_lambda_function.timestamp_lambda.arn
+        Next = "TriggerAirflowDAG"
+        Catch = [
+          {
+            ErrorEquals = ["States.ALL"]
+            Next = "ErrorHandler"
+          }
+        ]
+      }
+
+      "TriggerAirflowDAG" = {
+        Type = "Task"
+        Resource = aws_lambda_function.trigger_dag_lambda.arn
         Next = "ChoiceState"
         Catch = [
           {
@@ -110,7 +122,8 @@ resource "aws_iam_role_policy" "step_function_policy" {
         ]
         Resource = [
           aws_lambda_function.hello_world_lambda.arn,
-          aws_lambda_function.timestamp_lambda.arn
+          aws_lambda_function.timestamp_lambda.arn,
+          aws_lambda_function.trigger_dag_lambda.arn
         ]
       }
     ]
@@ -123,7 +136,7 @@ resource "aws_lambda_function" "hello_world_lambda" {
   function_name    = "${var.project_name}-${var.environment}-hello-world"
   role            = aws_iam_role.lambda_role.arn
   handler         = "index.lambda_handler"
-  runtime         = "python3.12"
+  runtime         = "python3.9"
   timeout         = 30
 
   environment {
@@ -146,7 +159,7 @@ resource "aws_lambda_function" "timestamp_lambda" {
   function_name    = "${var.project_name}-${var.environment}-timestamp"
   role            = aws_iam_role.lambda_role.arn
   handler         = "index.lambda_handler"
-  runtime         = "python3.12"
+  runtime         = "python3.9"
   timeout         = 30
 
   environment {

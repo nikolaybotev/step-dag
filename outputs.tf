@@ -46,6 +46,32 @@ output "timestamp_lambda_arn" {
   value       = aws_lambda_function.timestamp_lambda.arn
 }
 
+output "trigger_dag_lambda_name" {
+  description = "Name of the Trigger DAG Lambda function"
+  value       = aws_lambda_function.trigger_dag_lambda.function_name
+}
+
+output "trigger_dag_lambda_arn" {
+  description = "ARN of the Trigger DAG Lambda function"
+  value       = aws_lambda_function.trigger_dag_lambda.arn
+}
+
+# Workload Identity Federation Outputs
+output "workload_identity_pool_id" {
+  description = "Workload Identity Pool ID for AWS to GCP federation"
+  value       = google_iam_workload_identity_pool.aws_pool.workload_identity_pool_id
+}
+
+output "workload_identity_pool_name" {
+  description = "Workload Identity Pool name for AWS to GCP federation"
+  value       = google_iam_workload_identity_pool.aws_pool.name
+}
+
+output "wif_service_account_email" {
+  description = "Workload Identity Federation service account email"
+  value       = google_service_account.wif_service_account.email
+}
+
 # GCP Outputs
 output "gcp_bucket_name" {
   description = "Name of the GCP Cloud Storage bucket"
