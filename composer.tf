@@ -111,29 +111,12 @@ resource "google_project_iam_member" "storage_object_viewer" {
   member  = "serviceAccount:${google_service_account.composer_sa.email}"
 }
 
-# Cloud Storage bucket for DAGs
-resource "google_storage_bucket" "dags_bucket" {
-  name          = "${var.project_name}-${var.environment}-dags"
-  location      = var.gcp_region
-  force_destroy = true
-  
-  versioning {
-    enabled = true
-  }
-  
-  labels = {
-    environment = var.environment
-    project     = var.project_name
-    purpose     = "airflow-dags"
-  }
-}
-
-# Upload the DAG file to the DAGs bucket
+# Upload the DAG file to Composer's DAGs bucket
 resource "google_storage_bucket_object" "hello_world_dag" {
   name   = "dags/hello_world_dag.py"
-  bucket = google_storage_bucket.dags_bucket.name
+  bucket = replace(replace(google_composer_environment.composer_env.config[0].dag_gcs_prefix, "/dags", ""), "gs://", "")
   source = "${path.module}/dags/hello_world_dag.py"
   
-  # Trigger upload when DAG file changes
-  depends_on = [google_storage_bucket.dags_bucket]
+  # Use the actual Composer DAGs bucket
+  depends_on = [google_composer_environment.composer_env]
 }

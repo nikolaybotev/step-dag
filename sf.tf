@@ -123,7 +123,7 @@ resource "aws_lambda_function" "hello_world_lambda" {
   function_name    = "${var.project_name}-${var.environment}-hello-world"
   role            = aws_iam_role.lambda_role.arn
   handler         = "index.lambda_handler"
-  runtime         = "python3.9"
+  runtime         = "python3.12"
   timeout         = 30
 
   environment {
@@ -146,7 +146,7 @@ resource "aws_lambda_function" "timestamp_lambda" {
   function_name    = "${var.project_name}-${var.environment}-timestamp"
   role            = aws_iam_role.lambda_role.arn
   handler         = "index.lambda_handler"
-  runtime         = "python3.9"
+  runtime         = "python3.12"
   timeout         = 30
 
   environment {

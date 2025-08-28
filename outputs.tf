@@ -75,12 +75,12 @@ output "composer_gke_cluster" {
 
 output "dags_bucket_name" {
   description = "Name of the Cloud Storage bucket for DAGs"
-  value       = google_storage_bucket.dags_bucket.name
+  value       = google_composer_environment.composer_env.config[0].dag_gcs_prefix
 }
 
 output "dags_bucket_url" {
   description = "URL of the Cloud Storage bucket for DAGs"
-  value       = google_storage_bucket.dags_bucket.url
+  value       = google_composer_environment.composer_env.config[0].dag_gcs_prefix
 }
 
 output "composer_service_account" {
