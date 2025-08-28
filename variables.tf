@@ -14,7 +14,7 @@ variable "environment" {
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
 }
 
 variable "aws_access_key" {
@@ -41,11 +41,36 @@ variable "gcp_project_id" {
 variable "gcp_region" {
   description = "GCP region"
   type        = string
-  default     = "us-central1"
+  default     = "us-east4"
 }
 
 variable "gcp_credentials_file" {
   description = "Path to GCP service account key file"
   type        = string
   default     = ""
+}
+
+# Composer Variables
+variable "composer_image_version" {
+  description = "Composer image version to use"
+  type        = string
+  default     = "composer-3-airflow-2.10.5"
+}
+
+variable "composer_environment_size" {
+  description = "Size of the Composer environment (small, medium, large)"
+  type        = string
+  default     = "small"
+}
+
+variable "composer_node_count" {
+  description = "Number of worker nodes for the Composer environment"
+  type        = number
+  default     = 1
+}
+variable "airflow_webserver_secret_key" {
+  description = "Secret key for Airflow webserver security"
+  type        = string
+  sensitive   = true
+  default     = "your-secret-key-here"  # You'll need to set this in terraform.tfvars
 }
