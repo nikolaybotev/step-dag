@@ -9,31 +9,31 @@ This directory contains the Python Lambda functions used by the AWS Step Functio
 - **Input**: Any event data from the Step Function
 - **Output**: Message, timestamp, and environment information
 - **Success**: Always returns `success: true`
-- **Runtime**: Python 3.9
+- **Runtime**: Python 3.12
 
 ### 2. Timestamp Lambda (`timestamp/index.py`)
 - **Purpose**: Second task that processes the output from the first task
 - **Input**: Event data from the previous Lambda (includes message and timestamp)
 - **Output**: Current timestamp, formatted date, and input processing results
 - **Success**: Always returns `success: true`
-- **Runtime**: Python 3.9
+- **Runtime**: Python 3.12
 
 ## Building the Lambda Functions
 
 ### Prerequisites
-- Python 3.9+ installed
+- Python 3.12 installed
 - pip available for dependency installation
 
 ### Build Commands
 ```bash
 # Build all Lambda functions (includes dependencies)
-python build.py
+./build.sh
 
 # Clean up build artifacts manually (optional)
 rm -f hello_world.zip timestamp.zip trigger_dag.zip
 
 # Clean up installed dependencies from source directories
-python build.py --clean
+./build.sh --clean
 ```
 
 ### Build Output
