@@ -93,9 +93,6 @@ process_message_task = PythonOperator(
     dag=dag,
 )
 
-# Note: The create_trigger_config task is no longer needed since TriggerDagRunOperator
-# now gets its configuration directly from the conf parameter
-
 # Pub/Sub sensor to listen for messages
 pubsub_sensor = PubSubPullSensor(
     task_id='listen_pubsub',
@@ -111,7 +108,7 @@ trigger_hello_world = TriggerDagRunOperator(
     task_id='trigger_hello_world_dag',
     trigger_dag_id='hello_world_dag',
     conf={
-        'pubsub_params': '{{ ti.xcom_pull(key="dag_params", task_ids="process_pubsub_message") }}',
+        'pubsub_params': '{{ json.dumps(ti.xcom_pull(key="dag_params", task_ids="process_pubsub_message")) }}',
         'triggered_by': 'pubsub_trigger_dag',
         'trigger_time': '{{ ts }}'
     },
