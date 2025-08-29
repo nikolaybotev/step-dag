@@ -1,3 +1,5 @@
+# See https://cloud.google.com/iam/docs/workload-identity-federation-with-other-clouds
+
 # Data source to get current AWS account ID
 data "aws_caller_identity" "current" {}
 
@@ -18,9 +20,10 @@ resource "google_iam_workload_identity_pool_provider" "aws_provider" {
   }
 
   attribute_mapping = {
-    "google.subject"        = "assertion.arn"
-    "attribute.aws_role"    = "assertion.arn"
-    "attribute.aws_account" = "assertion.account"
+    "google.subject"             = "assertion.arn"
+    "attribute.aws_role"         = "assertion.arn.extract('assumed-role/{role}/')"
+    "attribute.aws_assumed_role" = "assertion.arn.extract('assumed-role/{role_and_session}')"
+    "attribute.aws_account"      = "assertion.account"
   }
 
   attribute_condition = "attribute.aws_account == \"${data.aws_caller_identity.current.account_id}\""

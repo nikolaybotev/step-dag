@@ -1,17 +1,9 @@
-# Grant the composer.user role directly to the AWS IAM role of the Trigger DAG Lambda.
-resource "google_project_iam_member" "wif_lambda_trigger_dag_composer_user" {
-  project = var.gcp_project_id
-  role    = "roles/composer.user"
-  member  = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_role/${aws_iam_role.trigger_dag_lambda_role.arn}"
-}
-
 # Grant the pubsub.publisher role to the AWS IAM role of the Trigger DAG Lambda.
 resource "google_pubsub_topic_iam_member" "wif_direct_access_pubsub_publisher" {
   topic  = google_pubsub_topic.hello_world_trigger_topic.name
   role   = "roles/pubsub.publisher"
-  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_role/${aws_iam_role.trigger_dag_lambda_role.arn}"
+  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_assumed_role/${aws_iam_role.trigger_dag_lambda_role.name}/${aws_lambda_function.trigger_dag.function_name}"
 }
-
 
 # Generate Google Cloud client library configuration file for WIF
 resource "local_file" "wif_direct_access" {
