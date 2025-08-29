@@ -26,7 +26,6 @@ def lambda_handler(event, context):
         # Get environment variables
         gcp_project_id = os.environ.get('GCP_PROJECT_ID')
         gcp_region = os.environ.get('GCP_REGION')
-        service_account_email = os.environ.get('WIF_SERVICE_ACCOUNT')
         composer_environment = os.environ.get('COMPOSER_ENVIRONMENT')
         dag_id = os.environ.get('DAG_ID')
         
@@ -35,9 +34,6 @@ def lambda_handler(event, context):
         logger.info(f'Composer Environment: {composer_environment}')
         logger.info(f'DAG ID: {dag_id}')
         
-        # Get the service account email from environment
-        logger.info(f'Using service account: {service_account_email}')
-
         # Create Composer client
         client = orchestration_airflow_v1.EnvironmentsClient()
         

@@ -1,7 +1,7 @@
 # Lambda Function for Triggering Airflow DAG
 resource "aws_lambda_function" "trigger_dag" {
-  filename         = "lambda/trigger_dag.zip"
-  source_code_hash = filebase64sha256("lambda/trigger_dag.zip")
+  filename         = archive_file.trigger_dag.output_path
+  source_code_hash = filebase64sha256(archive_file.trigger_dag.output_path)
   function_name    = "${var.project_name}-${var.environment}-trigger-dag"
   role             = aws_iam_role.trigger_dag_lambda_role.arn
   handler          = "index.lambda_handler"
@@ -10,13 +10,13 @@ resource "aws_lambda_function" "trigger_dag" {
 
   environment {
     variables = {
-      ENVIRONMENT          = var.environment
-      PROJECT_NAME         = var.project_name
-      GCP_PROJECT_ID       = var.gcp_project_id
-      GCP_REGION           = var.gcp_region
-      COMPOSER_ENVIRONMENT = "${var.project_name}-${var.environment}-composer"
-      DAG_ID               = "hello_world_dag"
-      WIF_SERVICE_ACCOUNT  = google_service_account.wif_lambda_trigger_dag_sa.email
+      ENVIRONMENT                     = var.environment
+      PROJECT_NAME                    = var.project_name
+      APPLICATION_DEFAULT_CREDENTIALS = "./wif_direct_access.json"
+      GCP_PROJECT_ID                  = var.gcp_project_id
+      GCP_REGION                      = var.gcp_region
+      COMPOSER_ENVIRONMENT            = "${var.project_name}-${var.environment}-composer"
+      DAG_ID                          = "hello_world_dag"
     }
   }
 
@@ -37,4 +37,15 @@ resource "aws_cloudwatch_log_group" "trigger_dag_lambda_logs" {
     Environment = var.environment
     Project     = var.project_name
   }
+}
+
+resource "archive_file" "trigger_dag" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda/trigger_dag/build"
+  output_path = "${path.module}/lambda/trigger_dag.zip"
+
+  depends_on = [
+    local_file.wif_direct_access,
+    local_file.wif_sa_access
+  ]
 }
