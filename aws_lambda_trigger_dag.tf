@@ -26,9 +26,7 @@ resource "aws_lambda_function" "trigger_dag" {
       PROJECT_NAME                   = var.project_name
       GOOGLE_APPLICATION_CREDENTIALS = "./wif_direct_access.json"
       GCP_PROJECT_ID                 = var.gcp_project_id
-      GCP_REGION                     = var.gcp_region
-      COMPOSER_ENVIRONMENT           = "${var.project_name}-${var.environment}-composer"
-      DAG_ID                         = "hello_world_dag"
+      PUBSUB_TOPIC_ID                = google_pubsub_topic.hello_world_trigger_topic.id
     }
   }
 

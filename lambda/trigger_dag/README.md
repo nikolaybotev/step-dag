@@ -1,6 +1,6 @@
 # Trigger DAG Lambda Function
 
-This Lambda function triggers Airflow DAGs in Google Cloud Composer using Workload Identity Federation (WIF) for secure authentication between AWS and Google Cloud.
+This Lambda function triggers Airflow DAGs by publishing messages to Google Cloud Pub/Sub using Workload Identity Federation (WIF) for secure authentication between AWS and Google Cloud.
 
 ## How It Works
 
@@ -17,22 +17,22 @@ AWS Lambda → AWS IAM Role → Google Cloud WIF Pool → GCP Service Account �
 ### 3. **DAG Trigger Process**
 1. Lambda receives event from Step Function
 2. Uses WIF to authenticate with Google Cloud
-3. Calls Composer API to trigger the specified DAG
-4. Returns success/failure status
+3. Publishes message to Pub/Sub topic
+4. Pub/Sub sensor in Airflow detects the message
+5. Airflow DAG is triggered with the message parameters
+6. Returns success/failure status
 
 ## Dependencies
 
 ### Python Packages
-- `google-cloud-composer` - Composer API client
+- `google-cloud-pubsub` - Pub/Sub API client
 - `google-auth` - Authentication library
 - `google-auth-httplib2` - HTTP transport for auth
 - `google-api-core` - Core Google API functionality
 
 ### Environment Variables
 - `GCP_PROJECT_ID` - Google Cloud project ID
-- `GCP_REGION` - Google Cloud region
-- `COMPOSER_ENVIRONMENT` - Composer environment name
-- `DAG_ID` - Airflow DAG ID to trigger
+- `PUBSUB_TOPIC_NAME` - Pub/Sub topic name (defaults to 'hello-world-dag-trigger')
 
 ## Configuration
 
@@ -43,7 +43,7 @@ The Lambda function uses a dedicated IAM role with:
 
 ### Google Cloud IAM
 - **Workload Identity Pool**: Defines the federation relationship
-- **Service Account**: Has Composer permissions
+- **Service Account**: Has Pub/Sub publisher permissions
 - **IAM Bindings**: Links AWS roles to GCP permissions
 
 ## Usage
@@ -57,13 +57,17 @@ The Lambda is called as part of the Step Function workflow:
 }
 ```
 
-### DAG Configuration
-The triggered DAG receives configuration:
+### Message Format
+The Pub/Sub message contains:
 ```json
 {
-  "triggered_by": "aws_step_function",
+  "custom_message": "Hello from AWS Step Function! Workflow: {workflow_id}",
+  "timestamp": "timestamp",
+  "source": "aws_step_function",
   "workflow_id": "step-function-execution-id",
-  "step_function_execution": "unique-execution-id"
+  "execution_id": "unique-execution-id",
+  "lambda_request_id": "lambda-request-id",
+  "trigger_time": "trigger-timestamp"
 }
 ```
 
@@ -77,27 +81,27 @@ The triggered DAG receives configuration:
 ## Error Handling
 
 - **Authentication failures** are logged and reported
-- **Composer API errors** are captured and returned
+- **Pub/Sub API errors** are captured and returned
 - **Network timeouts** are handled gracefully
-- **Invalid DAG IDs** are caught and reported
+- **Message publishing failures** are caught and reported
 
 ## Monitoring
 
 - **CloudWatch logs** for Lambda execution
-- **Google Cloud logs** for Composer API calls
+- **Google Cloud logs** for Pub/Sub API calls
 - **Step Function execution history** for workflow tracking
-- **DAG run history** in Airflow UI
+- **Pub/Sub message delivery** and **DAG run history** in Airflow UI
 
 ## Troubleshooting
 
 ### Common Issues
 1. **WIF authentication failures**: Check IAM role bindings
-2. **Composer API errors**: Verify environment name and permissions
-3. **DAG not found**: Confirm DAG ID and environment
+2. **Pub/Sub API errors**: Verify topic name and permissions
+3. **Message not delivered**: Confirm topic exists and permissions are correct
 4. **Timeout issues**: Check Lambda timeout and network connectivity
 
 ### Debug Steps
 1. Check CloudWatch logs for Lambda execution
 2. Verify WIF pool and provider configuration
-3. Confirm Composer environment status
-4. Test DAG trigger manually in Airflow UI
+3. Confirm Pub/Sub topic exists and permissions are correct
+4. Test message publishing manually and check Airflow DAG execution

@@ -1,7 +1,7 @@
 import json
 import os
 import logging
-from google.cloud import orchestration_airflow_v1
+from google.cloud import pubsub_v1
 
 # Configure logging
 logger = logging.getLogger()
@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
     """
-    Lambda function to trigger an Airflow DAG using Google Cloud Composer API.
+    Lambda function to trigger an Airflow DAG by publishing a message to Pub/Sub.
     Uses Workload Identity Federation for authentication.
     
     Args:
@@ -17,69 +17,48 @@ def lambda_handler(event, context):
         context: Lambda context object
     
     Returns:
-        dict: Response with DAG trigger status
+        dict: Response with Pub/Sub publish status
     """
     logger.info('Trigger DAG Lambda function started')
     logger.info(f'Event: {json.dumps(event, indent=2)}')
     
     try:
         # Get environment variables
-        gcp_project_id = os.environ.get('GCP_PROJECT_ID')
-        gcp_region = os.environ.get('GCP_REGION')
-        composer_environment = os.environ.get('COMPOSER_ENVIRONMENT')
-        dag_id = os.environ.get('DAG_ID')
+        pubsub_topic_id = os.environ.get('PUBSUB_TOPIC_ID')
         
-        logger.info(f'GCP Project: {gcp_project_id}')
-        logger.info(f'GCP Region: {gcp_region}')
-        logger.info(f'Composer Environment: {composer_environment}')
-        logger.info(f'DAG ID: {dag_id}')
+        logger.info(f'Pub/Sub Topic: {pubsub_topic_id}')
         
-        # Create Composer client
-        client = orchestration_airflow_v1.EnvironmentsClient()
+        # Create Pub/Sub client
+        publisher = pubsub_v1.PublisherClient()
         
-        # Format the environment name
-        environment_name = f"projects/{gcp_project_id}/locations/{gcp_region}/environments/{composer_environment}"
-        logger.info(f'Environment name: {environment_name}')
+        # Prepare the message data
+        message_data = {
+            "custom_message": f"Hello from AWS Step Function! Workflow: {event.get('workflow_id', 'unknown')}",
+            "timestamp": context.get_remaining_time_in_millis() and str(context.get_remaining_time_in_millis()),
+            "source": "aws_step_function",
+            "workflow_id": event.get('workflow_id', 'unknown'),
+            "execution_id": event.get('execution_id', 'unknown'),
+            "lambda_request_id": context.aws_request_id,
+            "trigger_time": context.get_remaining_time_in_millis() and str(context.get_remaining_time_in_millis())
+        }
         
-        # Get the environment to verify it exists
-        try:
-            environment = client.get_environment(name=environment_name)
-            logger.info(f'Found Composer environment: {environment.name}')
-        except Exception as e:
-            logger.error(f'Error getting Composer environment: {e}')
-            return {
-                "message": f"Error getting Composer environment: {str(e)}",
-                "success": False,
-                "error": str(e)
-            }
+        # Convert to JSON string and encode as bytes
+        message_json = json.dumps(message_data)
+        message_bytes = message_json.encode('utf-8')
         
-        # Create the DAG trigger request
-        dag_trigger_request = orchestration_airflow_v1.DagRun(
-            dag_id=dag_id,
-            execution_date=None,  # Use current time
-            conf=json.dumps({
-                "triggered_by": "aws_step_function",
-                "workflow_id": event.get('workflow_id', 'unknown'),
-                "step_function_execution": event.get('execution_id', 'unknown')
-            })
-        )
+        logger.info(f'Publishing message to Pub/Sub: {message_json}')
         
-        # Trigger the DAG
-        logger.info(f'Triggering DAG: {dag_id}')
-        dag_run = client.create_dag_run(
-            parent=environment_name,
-            dag_run=dag_trigger_request
-        )
+        # Publish the message
+        future = publisher.publish(pubsub_topic_id, data=message_bytes)
+        message_id = future.result()  # Wait for the message to be published
         
-        logger.info(f'DAG triggered successfully: {dag_run.name}')
+        logger.info(f'Message published successfully with ID: {message_id}')
         
         result = {
-            "message": f"Successfully triggered DAG: {dag_id}",
-            "dag_run_name": dag_run.name,
-            "dag_id": dag_id,
-            "environment": composer_environment,
-            "project": gcp_project_id,
-            "region": gcp_region,
+            "message": f"Successfully published message to Pub/Sub topic: {pubsub_topic_id}",
+            "message_id": message_id,
+            "workflow_id": event.get('workflow_id', 'unknown'),
+            "execution_id": event.get('execution_id', 'unknown'),
             "success": True
         }
         
