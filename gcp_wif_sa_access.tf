@@ -14,11 +14,11 @@ resource "google_pubsub_topic_iam_member" "wif_sa_pubsub_publisher" {
 }
 
 # Grant AWS IAM role permission to impersonate the GCP service account
-# This allows the AWS Lambda (running with trigger_dag_lambda_role) to act as the GCP service account
+# This allows the AWS Lambda (running with lambda_role) to act as the GCP service account
 resource "google_service_account_iam_member" "wif_pool_binding" {
   service_account_id = google_service_account.wif_lambda_trigger_dag_sa.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_assumed_role/${aws_iam_role.trigger_dag_lambda_role.name}/${aws_lambda_function.trigger_dag.function_name}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_assumed_role/${aws_iam_role.lambda_role.name}/${aws_lambda_function.trigger_dag.function_name}"
 }
 
 # Generate Google Cloud client library configuration file for WIF

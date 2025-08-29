@@ -15,7 +15,7 @@ resource "aws_lambda_function" "trigger_dag" {
   filename         = archive_file.trigger_dag_lambda.output_path
   source_code_hash = archive_file.trigger_dag_lambda.output_base64sha256
   function_name    = "${var.project_name}-${var.environment}-trigger-dag"
-  role             = aws_iam_role.trigger_dag_lambda_role.arn
+  role             = aws_iam_role.lambda_role.arn
   handler          = "index.lambda_handler"
   runtime          = var.lambda_runtime
   timeout          = 60
