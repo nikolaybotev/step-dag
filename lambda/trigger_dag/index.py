@@ -24,6 +24,7 @@ def lambda_handler(event, context):
     logger.info(f'Event: {json.dumps(event, indent=2)}')
     
     try:
+        # Get caller identity to verify WIF is working
         client = boto3.client('sts')
         response = client.get_caller_identity()
         logger.info(f'Caller Identity: {response}')
@@ -31,6 +32,7 @@ def lambda_handler(event, context):
         # Get environment variables
         pubsub_topic_id = os.environ.get('PUBSUB_TOPIC_ID')
         
+        logger.info(f'Google Application Credentials: {os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")}')
         logger.info(f'Pub/Sub Topic: {pubsub_topic_id}')
         
         # Create Pub/Sub client
