@@ -87,14 +87,6 @@ build_lambda_function() {
     # Copy source files to build directory
     cp "$source_dir/index.py" "$build_dir/"
     
-    # Create zip file
-    cd "$build_dir"
-    zip -r "$output_zip" . > /dev/null
-    cd - > /dev/null
-    
-    # Move zip file to parent directory
-    mv "$build_dir/$output_zip" ./
-    
     print_info "Successfully built: $output_zip"
 }
 
@@ -109,12 +101,6 @@ main() {
     
     echo
     print_info "Build completed successfully!"
-    print_info "Generated files:"
-    echo "  - hello_world.zip"
-    echo "  - timestamp.zip"
-    echo "  - trigger_dag.zip"
-    echo
-    print_info "Note: Dependencies are included in the zip files."
     print_info "Run './build.sh --clean' to remove installed dependencies."
 }
 

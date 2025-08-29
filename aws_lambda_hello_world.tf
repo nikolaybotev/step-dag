@@ -1,7 +1,14 @@
+# Code archive for Hello World Lambda
+resource "archive_file" "hello_world_lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda/hello_world/build"
+  output_path = "${path.module}/lambda/hello_world.zip"
+}
+
 # Lambda Function for Hello World Task
 resource "aws_lambda_function" "hello_world" {
-  filename         = "lambda/hello_world.zip"
-  source_code_hash = filebase64sha256("lambda/hello_world.zip")
+  filename         = archive_file.hello_world_lambda.output_path
+  source_code_hash = archive_file.hello_world_lambda.output_base64sha256
   function_name    = "${var.project_name}-${var.environment}-hello-world"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.lambda_handler"

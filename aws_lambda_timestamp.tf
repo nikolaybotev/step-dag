@@ -1,7 +1,14 @@
+# Code archive for Timestamp Lambda
+resource "archive_file" "timestamp_lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda/timestamp/build"
+  output_path = "${path.module}/lambda/timestamp.zip"
+}
+
 # Lambda Function for Timestamp Task
 resource "aws_lambda_function" "timestamp" {
-  filename         = "lambda/timestamp.zip"
-  source_code_hash = filebase64sha256("lambda/timestamp.zip")
+  filename         = archive_file.timestamp_lambda.output_path
+  source_code_hash = archive_file.timestamp_lambda.output_base64sha256
   function_name    = "${var.project_name}-${var.environment}-timestamp"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.lambda_handler"
