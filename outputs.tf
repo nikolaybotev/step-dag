@@ -91,3 +91,24 @@ output "composer_service_account" {
   description = "Service account email for the Composer environment"
   value       = google_service_account.composer_sa.email
 }
+
+# Output the topic and subscription information
+output "pubsub_topic_name" {
+  description = "Name of the Pub/Sub topic for triggering DAGs"
+  value       = google_pubsub_topic.hello_world_trigger_topic.name
+}
+
+output "pubsub_subscription_name" {
+  description = "Name of the Pub/Sub subscription for triggering DAGs"
+  value       = google_pubsub_subscription.hello_world_trigger_subscription.name
+}
+
+output "pubsub_topic_id" {
+  description = "ID of the Pub/Sub topic for triggering DAGs"
+  value       = google_pubsub_topic.hello_world_trigger_topic.id
+}
+
+output "pubsub_subscription_id" {
+  description = "ID of the Pub/Sub subscription for triggering DAGs"
+  value       = google_pubsub_subscription.hello_world_trigger_subscription.id
+}

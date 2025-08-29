@@ -14,8 +14,11 @@ resource "google_composer_environment" "composer_env" {
 
       # Environment variables
       env_variables = {
-        ENVIRONMENT  = var.environment
-        PROJECT_NAME = var.project_name
+        ENVIRONMENT         = var.environment
+        PROJECT_NAME        = var.project_name
+        GCP_PROJECT_ID      = var.gcp_project_id
+        GCP_REGION          = var.gcp_region
+        PUBSUB_SUBSCRIPTION = google_pubsub_subscription.hello_world_trigger_subscription.name
       }
 
       # Python dependencies (optional)
@@ -118,5 +121,13 @@ resource "google_storage_bucket_object" "hello_world_dag" {
   source = "${path.module}/dags/hello_world_dag.py"
 
   # Use the actual Composer DAGs bucket
+  depends_on = [google_composer_environment.composer_env]
+}
+
+resource "google_storage_bucket_object" "pubsub_trigger_dag" {
+  name   = "dags/pubsub_trigger_dag.py"
+  bucket = replace(replace(google_composer_environment.composer_env.config[0].dag_gcs_prefix, "/dags", ""), "gs://", "")
+  source = "${path.module}/dags/pubsub_trigger_dag.py"
+
   depends_on = [google_composer_environment.composer_env]
 }

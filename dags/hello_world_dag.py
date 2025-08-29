@@ -4,6 +4,7 @@ A simple example DAG that demonstrates basic Airflow concepts.
 """
 
 from datetime import datetime, timedelta
+import json
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
@@ -36,10 +37,24 @@ start_task = DummyOperator(
     dag=dag,
 )
 
-def print_hello():
-    """Print hello message"""
-    print("Hello, World! This is a simple Airflow DAG.")
-    return "Hello World completed successfully"
+def print_hello(**context):
+    """Print hello message with optional parameters from Pub/Sub"""
+    # Get configuration parameters if triggered by another DAG
+    conf = context.get('dag_run', {}).conf or {}
+    pubsub_params = json.loads(conf.get('pubsub_params', {}))
+
+    if pubsub_params:
+        custom_message = pubsub_params.get('custom_message', 'Hello, World!')
+        source = pubsub_params.get('source', 'unknown')
+        trigger_time = pubsub_params.get('timestamp', 'unknown')
+        print(f"Hello, World! This is a simple Airflow DAG.")
+        print(f"Custom message: {custom_message}")
+        print(f"Triggered by: {source}")
+        print(f"Trigger time: {trigger_time}")
+        return f"Hello World completed successfully with custom message: {custom_message}"
+    else:
+        print("Hello, World! This is a simple Airflow DAG.")
+        return "Hello World completed successfully"
 
 hello_task = PythonOperator(
     task_id='hello_world',
@@ -47,11 +62,21 @@ hello_task = PythonOperator(
     dag=dag,
 )
 
-def print_timestamp():
-    """Print current timestamp"""
+def print_timestamp(**context):
+    """Print current timestamp with optional parameters from Pub/Sub"""
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"Current timestamp: {current_time}")
-    return f"Timestamp printed: {current_time}"
+    
+    # Get configuration parameters if triggered by another DAG
+    conf = context.get('dag_run', {}).conf or {}
+    pubsub_params = json.loads(conf.get('pubsub_params', {}))
+
+    if pubsub_params:
+        trigger_time = pubsub_params.get('timestamp', 'unknown')
+        print(f"Pub/Sub trigger time: {trigger_time}")
+        return f"Timestamp printed: {current_time} (triggered from Pub/Sub at {trigger_time})"
+    else:
+        return f"Timestamp printed: {current_time}"
 
 timestamp_task = PythonOperator(
     task_id='print_timestamp',

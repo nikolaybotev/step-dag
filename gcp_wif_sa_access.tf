@@ -14,6 +14,13 @@ resource "google_project_iam_member" "wif_lambda_trigger_dag_sa_composer_user" {
   member  = "serviceAccount:${google_service_account.wif_lambda_trigger_dag_sa.email}"
 }
 
+# Grant the pubsub.publisher role to the WIF Service Account
+resource "google_pubsub_topic_iam_member" "wif_sa_pubsub_publisher" {
+  topic  = google_pubsub_topic.hello_world_trigger_topic.name
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.wif_lambda_trigger_dag_sa.email}"
+}
+
 # Grant AWS IAM role permission to impersonate the GCP service account
 # This allows the AWS Lambda (running with trigger_dag_lambda_role) to act as the GCP service account
 resource "google_service_account_iam_member" "wif_pool_binding" {
@@ -25,7 +32,7 @@ resource "google_service_account_iam_member" "wif_pool_binding" {
 # Generate Google Cloud client library configuration file for WIF
 resource "local_file" "wif_sa_access" {
   filename = "${path.module}/lambda/trigger_dag/build/wif_sa_access.json"
-  content = <<EOF
+  content  = <<EOF
 {
   "universe_domain": "googleapis.com",
   "type": "external_account",
