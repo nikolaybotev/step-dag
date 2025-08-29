@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import boto3
 from google.cloud import pubsub_v1
 
 # Configure logging
@@ -23,6 +24,10 @@ def lambda_handler(event, context):
     logger.info(f'Event: {json.dumps(event, indent=2)}')
     
     try:
+        client = boto3.client('sts')
+        response = client.get_caller_identity()
+        logger.info(f'Caller Identity: {response}')
+
         # Get environment variables
         pubsub_topic_id = os.environ.get('PUBSUB_TOPIC_ID')
         

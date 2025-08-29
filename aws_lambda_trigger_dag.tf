@@ -24,7 +24,7 @@ resource "aws_lambda_function" "trigger_dag" {
     variables = {
       ENVIRONMENT                    = var.environment
       PROJECT_NAME                   = var.project_name
-      GOOGLE_APPLICATION_CREDENTIALS = "./wif_direct_access.json"
+      GOOGLE_APPLICATION_CREDENTIALS = "./wif_sa_access.json"
       GCP_PROJECT_ID                 = var.gcp_project_id
       PUBSUB_TOPIC_ID                = google_pubsub_topic.hello_world_trigger_topic.id
     }
