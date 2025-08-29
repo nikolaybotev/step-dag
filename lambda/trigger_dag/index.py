@@ -1,9 +1,7 @@
 import json
 import os
 import logging
-from google.cloud import composer_v1
-from google.auth import default
-import google.auth.transport.requests
+from google.cloud import orchestration_airflow_v1
 
 # Configure logging
 logger = logging.getLogger()
@@ -28,6 +26,7 @@ def lambda_handler(event, context):
         # Get environment variables
         gcp_project_id = os.environ.get('GCP_PROJECT_ID')
         gcp_region = os.environ.get('GCP_REGION')
+        service_account_email = os.environ.get('WIF_SERVICE_ACCOUNT')
         composer_environment = os.environ.get('COMPOSER_ENVIRONMENT')
         dag_id = os.environ.get('DAG_ID')
         
@@ -36,12 +35,11 @@ def lambda_handler(event, context):
         logger.info(f'Composer Environment: {composer_environment}')
         logger.info(f'DAG ID: {dag_id}')
         
-        # Get credentials using Workload Identity Federation
-        credentials, project = default()
-        logger.info(f'Authenticated with project: {project}')
-        
+        # Get the service account email from environment
+        logger.info(f'Using service account: {service_account_email}')
+
         # Create Composer client
-        client = composer_v1.EnvironmentsClient(credentials=credentials)
+        client = orchestration_airflow_v1.EnvironmentsClient()
         
         # Format the environment name
         environment_name = f"projects/{gcp_project_id}/locations/{gcp_region}/environments/{composer_environment}"
@@ -60,7 +58,7 @@ def lambda_handler(event, context):
             }
         
         # Create the DAG trigger request
-        dag_trigger_request = composer_v1.DagRun(
+        dag_trigger_request = orchestration_airflow_v1.DagRun(
             dag_id=dag_id,
             execution_date=None,  # Use current time
             conf=json.dumps({

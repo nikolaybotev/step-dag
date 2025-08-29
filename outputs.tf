@@ -1,59 +1,48 @@
-# AWS Outputs
-output "aws_bucket_name" {
-  description = "Name of the AWS S3 bucket"
-  value       = aws_s3_bucket.example_bucket.bucket
-}
-
-output "aws_bucket_arn" {
-  description = "ARN of the AWS S3 bucket"
-  value       = aws_s3_bucket.example_bucket.arn
-}
-
 # Step Function Outputs
 output "step_function_name" {
   description = "Name of the Step Function state machine"
-  value       = aws_sfn_state_machine.hello_world_sf.name
+  value       = aws_sfn_state_machine.hello_world.name
 }
 
 output "step_function_arn" {
   description = "ARN of the Step Function state machine"
-  value       = aws_sfn_state_machine.hello_world_sf.arn
+  value       = aws_sfn_state_machine.hello_world.arn
 }
 
 output "step_function_url" {
   description = "URL to access the Step Function in AWS Console"
-  value       = "https://console.aws.amazon.com/states/home?region=${var.aws_region}#/statemachines/view/${aws_sfn_state_machine.hello_world_sf.arn}"
+  value       = "https://console.aws.amazon.com/states/home?region=${var.aws_region}#/statemachines/view/${aws_sfn_state_machine.hello_world.arn}"
 }
 
 # Lambda Function Outputs
 output "hello_world_lambda_name" {
   description = "Name of the Hello World Lambda function"
-  value       = aws_lambda_function.hello_world_lambda.function_name
+  value       = aws_lambda_function.hello_world.function_name
 }
 
 output "hello_world_lambda_arn" {
   description = "ARN of the Hello World Lambda function"
-  value       = aws_lambda_function.hello_world_lambda.arn
+  value       = aws_lambda_function.hello_world.arn
 }
 
 output "timestamp_lambda_name" {
   description = "Name of the Timestamp Lambda function"
-  value       = aws_lambda_function.timestamp_lambda.function_name
+  value       = aws_lambda_function.timestamp.function_name
 }
 
 output "timestamp_lambda_arn" {
   description = "ARN of the Timestamp Lambda function"
-  value       = aws_lambda_function.timestamp_lambda.arn
+  value       = aws_lambda_function.timestamp.arn
 }
 
 output "trigger_dag_lambda_name" {
   description = "Name of the Trigger DAG Lambda function"
-  value       = aws_lambda_function.trigger_dag_lambda.function_name
+  value       = aws_lambda_function.trigger_dag.function_name
 }
 
 output "trigger_dag_lambda_arn" {
   description = "ARN of the Trigger DAG Lambda function"
-  value       = aws_lambda_function.trigger_dag_lambda.arn
+  value       = aws_lambda_function.trigger_dag.arn
 }
 
 # Workload Identity Federation Outputs
@@ -69,18 +58,7 @@ output "workload_identity_pool_name" {
 
 output "wif_service_account_email" {
   description = "Workload Identity Federation service account email"
-  value       = google_service_account.wif_service_account.email
-}
-
-# GCP Outputs
-output "gcp_bucket_name" {
-  description = "Name of the GCP Cloud Storage bucket"
-  value       = google_storage_bucket.example_bucket.name
-}
-
-output "gcp_bucket_url" {
-  description = "URL of the GCP Cloud Storage bucket"
-  value       = google_storage_bucket.example_bucket.url
+  value       = google_service_account.wif_lambda_trigger_dag_sa.email
 }
 
 # Composer Outputs

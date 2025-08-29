@@ -22,20 +22,31 @@ This directory contains the Python Lambda functions used by the AWS Step Functio
 
 ### Prerequisites
 - Python 3.9+ installed
+- pip available for dependency installation
 
 ### Build Commands
 ```bash
-# Build all Lambda functions
+# Build all Lambda functions (includes dependencies)
 python build.py
 
 # Clean up build artifacts manually (optional)
-rm -f hello_world.zip timestamp.zip
+rm -f hello_world.zip timestamp.zip trigger_dag.zip
+
+# Clean up installed dependencies from source directories
+python build.py --clean
 ```
 
 ### Build Output
 The build process creates:
 - `hello_world.zip` - Deployable package for the hello world Lambda
 - `timestamp.zip` - Deployable package for the timestamp Lambda
+- `trigger_dag.zip` - Deployable package for the trigger DAG Lambda
+
+### Dependency Handling
+- **Automatic Installation**: Dependencies are automatically installed from `requirements.txt`
+- **Platform-Specific**: Uses `manylinux2014_x86_64` for AWS Lambda compatibility
+- **Binary Only**: Installs pre-compiled packages to avoid compilation issues
+- **Cleanup Option**: Use `python build.py --clean` to remove installed dependencies
 
 ## Python Features Used
 
@@ -93,14 +104,23 @@ After deployment, you can test the complete workflow:
 ## Workflow Flow
 
 ```
-Start → HelloWorld Lambda → Wait (5s) → Timestamp Lambda → Choice → Success/Error
+Start → HelloWorld Lambda → Wait (5s) → Timestamp Lambda → TriggerAirflowDAG → Choice → Success/Error
 ```
 
 ## Environment Variables
 
-Both Lambda functions receive these environment variables:
+### Basic Lambda Functions (hello_world, timestamp)
 - `ENVIRONMENT`: Current environment (dev, staging, prod)
 - `PROJECT_NAME`: Name of the project
+
+### Trigger DAG Lambda Function
+- `ENVIRONMENT`: Current environment (dev, staging, prod)
+- `PROJECT_NAME`: Name of the project
+- `GCP_PROJECT_ID`: Google Cloud project ID
+- `GCP_REGION`: Google Cloud region
+- `COMPOSER_ENVIRONMENT`: Composer environment name
+- `DAG_ID`: Airflow DAG ID to trigger
+- `WIF_SERVICE_ACCOUNT`: Workload Identity Federation service account email
 
 ## Logging
 
