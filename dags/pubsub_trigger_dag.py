@@ -65,8 +65,8 @@ def process_pubsub_message(**context):
             print(f"Received parameters: {params}")
             
             # Store parameters in XCom for the trigger task
-            ti.xcom_push(key='dag_params', value=params)
-            return params
+            ti.xcom_push(key='dag_params', value=json.dumps(params))
+            return json.dumps(params)
         except json.JSONDecodeError as e:
             print(f"Failed to parse JSON: {e}")
             # Use default parameters if JSON parsing fails
@@ -75,8 +75,8 @@ def process_pubsub_message(**context):
                 'timestamp': datetime.now().isoformat(),
                 'source': 'pubsub_trigger_dag'
             }
-            ti.xcom_push(key='dag_params', value=default_params)
-            return default_params
+            ti.xcom_push(key='dag_params', value=json.dumps(default_params))
+            return json.dumps(default_params)
     else:
         # No data in message, use defaults
         default_params = {
@@ -84,8 +84,8 @@ def process_pubsub_message(**context):
             'timestamp': datetime.now().isoformat(),
             'source': 'pubsub_trigger_dag'
         }
-        ti.xcom_push(key='dag_params', value=default_params)
-        return default_params
+        ti.xcom_push(key='dag_params', value=json.dumps(default_params))
+        return json.dumps(default_params)
 
 process_message_task = PythonOperator(
     task_id='process_pubsub_message',
@@ -108,7 +108,7 @@ trigger_hello_world = TriggerDagRunOperator(
     task_id='trigger_hello_world_dag',
     trigger_dag_id='hello_world_dag',
     conf={
-        'pubsub_params': '{{ json.dumps(ti.xcom_pull(key="dag_params", task_ids="process_pubsub_message")) }}',
+        'pubsub_params': '{{ ti.xcom_pull(key="dag_params", task_ids="process_pubsub_message") }}',
         'triggered_by': 'pubsub_trigger_dag',
         'trigger_time': '{{ ts }}'
     },
