@@ -2,6 +2,13 @@
 
 This directory contains Airflow DAGs for the step-dag project.
 
+## Development
+
+```bash
+python3.12 -m venv .venv
+pip intall -r requirements.txt
+```
+
 ## DAGs Overview
 
 ### 1. hello_world_dag.py

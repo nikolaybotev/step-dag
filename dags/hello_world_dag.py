@@ -8,7 +8,7 @@ import json
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
-from airflow.operators.dummy import DummyOperator
+from airflow.operators.empty import EmptyOperator
 
 # Default arguments for the DAG
 default_args = {
@@ -32,7 +32,7 @@ dag = DAG(
 )
 
 # Define tasks
-start_task = DummyOperator(
+start_task = EmptyOperator(
     task_id='start',
     dag=dag,
 )
@@ -90,7 +90,7 @@ bash_task = BashOperator(
     dag=dag,
 )
 
-end_task = DummyOperator(
+end_task = EmptyOperator(
     task_id='end',
     dag=dag,
 )

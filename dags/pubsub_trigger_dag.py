@@ -8,7 +8,7 @@ import json
 import os
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.dummy import DummyOperator
+from airflow.operators.empty import EmptyOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.google.cloud.sensors.pubsub import PubSubPullSensor
 
@@ -35,7 +35,7 @@ dag = DAG(
 )
 
 # Define tasks
-start_task = DummyOperator(
+start_task = EmptyOperator(
     task_id='start',
     dag=dag,
 )
@@ -115,7 +115,7 @@ trigger_hello_world = TriggerDagRunOperator(
     dag=dag,
 )
 
-end_task = DummyOperator(
+end_task = EmptyOperator(
     task_id='end',
     dag=dag,
 )

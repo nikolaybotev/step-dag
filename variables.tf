@@ -54,7 +54,8 @@ variable "gcp_credentials_file" {
 variable "composer_image_version" {
   description = "Composer image version to use"
   type        = string
-  default     = "composer-3-airflow-2.10.5"
+  # See https://cloud.google.com/composer/docs/composer-versions#images-composer-3
+  default     = "composer-3-airflow-2.10.5" # uses python 3.11.8
 }
 
 variable "composer_environment_size" {
