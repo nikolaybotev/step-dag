@@ -57,6 +57,7 @@ def pubsub_trigger_dag():
     TriggerDagRunOperator(
         task_id='trigger_hello_world_dag',
         trigger_dag_id='hello_world_dag',
+        wait_for_completion=False,
         conf={
             'pubsub_params': message,
             'triggered_by': 'pubsub_trigger_dag',
