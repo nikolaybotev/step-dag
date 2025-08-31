@@ -14,7 +14,7 @@ cp ../trigger_dag/build/wif_sa_access.json build/ 2>/dev/null || echo "Warning: 
 
 # Build the Go binary for Linux (required for AWS Lambda)
 echo "Building Go binary for Linux..."
-GOOS=linux GOARCH=amd64 go build -o build/main
+GOOS=linux GOARCH=amd64 go build -o build/bootstrap
 
 # Create deployment package
 echo "Creating deployment package..."

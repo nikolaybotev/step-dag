@@ -16,7 +16,7 @@ resource "aws_lambda_function" "trigger_dag_go" {
   source_code_hash = archive_file.trigger_dag_go_lambda.output_base64sha256
   function_name    = "${var.project_name}-${var.environment}-trigger-dag-go"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "main"
+  handler          = "bootstrap"
   runtime          = var.lambda_runtime_go
   timeout          = 60
 
