@@ -14,11 +14,11 @@ resource "google_composer_environment" "composer_env" {
 
       # Environment variables
       env_variables = {
-        ENVIRONMENT         = var.environment
-        PROJECT_NAME        = var.project_name
-        GCP_PROJECT_ID      = var.gcp_project_id
-        GCP_REGION          = var.gcp_region
-        PUBSUB_SUBSCRIPTION = google_pubsub_subscription.hello_world_trigger_subscription.name
+        ENVIRONMENT           = var.environment
+        PROJECT_NAME          = var.project_name
+        GCP_PROJECT_ID        = var.gcp_project_id
+        GCP_REGION            = var.gcp_region
+        PUBSUB_SUBSCRIPTION   = google_pubsub_subscription.hello_world_trigger_subscription.name
         AWS_STEP_FUNCTION_ARN = aws_sfn_state_machine.hello_world.arn
       }
 
