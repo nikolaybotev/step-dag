@@ -10,6 +10,9 @@ set -e  # Exit on any error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAMBDA_DIR="$SCRIPT_DIR"
 
+# List of Lambda functions to build
+LAMBDA_FUNCTIONS=("hello_world" "timestamp" "trigger_dag")
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -32,8 +35,8 @@ print_error() {
 # Function to clean build artifacts
 clean_build_artifacts() {
     print_info "Cleaning previous build artifacts..."
-    artifacts=("hello_world.zip" "timestamp.zip" "trigger_dag.zip")
-    for artifact in "${artifacts[@]}"; do
+    for lambda_name in "${LAMBDA_FUNCTIONS[@]}"; do
+        artifact="$lambda_name.zip"
         artifact_path="$LAMBDA_DIR/$artifact"
         if [ -f "$artifact_path" ]; then
             rm "$artifact_path"
@@ -45,9 +48,8 @@ clean_build_artifacts() {
 # Function to clean dependencies
 clean_dependencies() {
     print_info "Cleaning installed dependencies..."
-    dirs_to_clean=("hello_world" "timestamp" "trigger_dag")
-    for dir_name in "${dirs_to_clean[@]}"; do
-        dir_path="$LAMBDA_DIR/$dir_name"
+    for lambda_name in "${LAMBDA_FUNCTIONS[@]}"; do
+        dir_path="$LAMBDA_DIR/$lambda_name"
         if [ -d "$dir_path" ]; then
             # Remove build directory
             build_dir="$dir_path/build"
@@ -112,9 +114,9 @@ main() {
     print_info "Working directory: $LAMBDA_DIR"
     
     # Build each Lambda function
-    build_lambda_function "hello_world" "hello_world.zip"
-    build_lambda_function "timestamp" "timestamp.zip"
-    build_lambda_function "trigger_dag" "trigger_dag.zip"
+    for lambda_name in "${LAMBDA_FUNCTIONS[@]}"; do
+        build_lambda_function "$lambda_name" "$lambda_name.zip"
+    done
     
     echo
     print_info "Build completed successfully!"
