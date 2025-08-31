@@ -37,7 +37,8 @@ def pubsub_trigger_dag():
         subscription=os.environ.get('PUBSUB_SUBSCRIPTION'),
         project_id=os.environ.get('GCP_PROJECT_ID'),
         ack_messages=True,
-        deferrable=True,
+        deferrable=False,
+        poke_interval=1,
         max_messages=1, # only one message at a time
     )
 
