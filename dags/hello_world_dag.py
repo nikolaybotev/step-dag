@@ -97,7 +97,7 @@ trigger_aws_step_function = StepFunctionStartExecutionOperator(
     task_id='trigger_aws_step_function',
     state_machine_arn=os.environ.get('AWS_STEP_FUNCTION_ARN'),
     name='hello-world-from-gcp-{{ ts_nodash }}',
-    input={
+    state_machine_input={
         'source': 'gcp-composer',
         'triggered_by': 'hello_world_dag',
         'trigger_time': '{{ ts }}',
