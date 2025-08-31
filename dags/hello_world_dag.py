@@ -64,7 +64,7 @@ def print_hello(**context):
         return {
             'message': f"Hello World completed successfully with custom message: {custom_message}",
             'workflow_id': workflow_id,
-            'execution_id': execution_id,
+            'execution_id': execution_id + 1,
             'custom_message': custom_message,
             'source': source,
             'trigger_time': trigger_time
@@ -115,7 +115,7 @@ bash_task = BashOperator(
 trigger_aws_step_function = StepFunctionStartExecutionOperator(
     task_id='trigger_aws_step_function',
     state_machine_arn=os.environ.get('AWS_STEP_FUNCTION_ARN'),
-    name='hello-world-from-gcp-{{ ts_nodash }}',
+    name='hello-world-from-gcp-{{ ts_nodash }}-{{ ti.xcom_pull(task_ids="hello_world").workflow_id }}-{{ ti.xcom_pull(task_ids="hello_world").execution_id }}',
     state_machine_input={
         'source': 'gcp-composer',
         'triggered_by': 'hello_world_dag',
