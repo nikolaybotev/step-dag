@@ -46,6 +46,12 @@ def print_hello(**context):
     pubsub_params = json.loads(conf.get('pubsub_params', {}))
 
     if pubsub_params:
+        workflow_id = pubsub_params.get('workflow_id', 'unknown')
+        execution_id = pubsub_params.get('execution_id', 'unknown')
+
+        print(f"Workflow ID: {workflow_id}")
+        print(f"Execution ID: {execution_id}")
+
         custom_message = pubsub_params.get('custom_message', 'Hello, World!')
         source = pubsub_params.get('source', 'unknown')
         trigger_time = pubsub_params.get('timestamp', 'unknown')
@@ -53,10 +59,23 @@ def print_hello(**context):
         print(f"Custom message: {custom_message}")
         print(f"Triggered by: {source}")
         print(f"Trigger time: {trigger_time}")
-        return f"Hello World completed successfully with custom message: {custom_message}"
+        
+        # Return dictionary with all data - this will be stored in XCom
+        return {
+            'message': f"Hello World completed successfully with custom message: {custom_message}",
+            'workflow_id': workflow_id,
+            'execution_id': execution_id,
+            'custom_message': custom_message,
+            'source': source,
+            'trigger_time': trigger_time
+        }
     else:
         print("Hello, World! This is a simple Airflow DAG.")
-        return "Hello World completed successfully"
+        return {
+            'message': "Hello World completed successfully",
+            'workflow_id': 'unknown',
+            'execution_id': 'unknown'
+        }
 
 hello_task = PythonOperator(
     task_id='hello_world',
@@ -101,7 +120,9 @@ trigger_aws_step_function = StepFunctionStartExecutionOperator(
         'source': 'gcp-composer',
         'triggered_by': 'hello_world_dag',
         'trigger_time': '{{ ts }}',
-        'dag_run_id': '{{ dag_run.run_id }}'
+        'dag_run_id': '{{ dag_run.run_id }}',
+        'workflow_id': '{{ ti.xcom_pull(task_ids="hello_world").workflow_id }}',
+        'execution_id': '{{ ti.xcom_pull(task_ids="hello_world").execution_id }}'
     },
     aws_conn_id='aws_default',  # This will use the WIF credentials
     dag=dag,
