@@ -11,7 +11,6 @@ import (
 	"cloud.google.com/go/pubsub/v2"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"google.golang.org/api/option"
 )
 
 // LambdaEvent represents the input event from Step Function
@@ -83,13 +82,7 @@ func handler(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
 
 	// Create Pub/Sub client
 	var pubsubClient *pubsub.Client
-	if googleAppCreds != "" {
-		// Use service account key file
-		pubsubClient, err = pubsub.NewClient(ctx, gcpProjectID, option.WithCredentialsFile(googleAppCreds))
-	} else {
-		// Use default credentials (for local development or when using metadata server)
-		pubsubClient, err = pubsub.NewClient(ctx, gcpProjectID)
-	}
+	pubsubClient, err = pubsub.NewClient(ctx, gcpProjectID)
 	if err != nil {
 		return LambdaResponse{
 			Message:    "Error occurred while triggering DAG",
