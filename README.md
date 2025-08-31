@@ -42,7 +42,16 @@ This Terraform project demonstrates how to use both AWS and GCP providers to cre
   source .venv/bin/activate
   ```
 
-4. **Run the lambda build**:
+4. **Install python dependencies**:
+
+  ```bash
+  pip install -r dags/requirements.txt
+  pip install -r lambda/hello_world/requirements.txt
+  pip install -r lambda/timestamp/requirements.txt
+  pip install -r lambda/trigger_dag/requirements.txt
+  ```
+
+5. **Run the lambda build**:
 
   ```bash
   cd lambda
@@ -50,17 +59,17 @@ This Terraform project demonstrates how to use both AWS and GCP providers to cre
   cd ..
   ```
 
-5. **Initialize Terraform**:
+6. **Initialize Terraform**:
    ```bash
    terraform init
    ```
 
-6. **Plan the deployment**:
+7. **Plan the deployment**:
    ```bash
    terraform plan
    ```
 
-7. **Apply the configuration**:
+8. **Apply the configuration**:
    ```bash
    terraform apply
    ```
