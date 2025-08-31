@@ -17,8 +17,7 @@ resource "aws_iam_role" "gcp_composer_step_function_role" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "accounts.google.com:aud" = "https://www.googleapis.com/auth/cloud-platform"
-            "accounts.google.com:sub" = google_service_account.composer_sa.unique_id
+            "accounts.google.com:aud" = google_service_account.composer_sa.unique_id # aud is set to the azp from the token
           }
         }
       }
