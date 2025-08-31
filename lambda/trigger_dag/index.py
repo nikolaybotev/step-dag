@@ -36,6 +36,7 @@ def lambda_handler(event, context):
         logger.info(f'Pub/Sub Topic: {pubsub_topic_id}')
         
         # Create Pub/Sub client
+        # Note: default retry policy is defined in .venv/lib/python3.12/site-packages/google/api_core/retry/retry_base.py
         publisher = pubsub_v1.PublisherClient()
         
         # Prepare the message data
