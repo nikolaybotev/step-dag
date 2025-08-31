@@ -25,7 +25,7 @@ resource "google_pubsub_subscription" "hello_world_trigger_subscription" {
 
   # Message retention and acknowledgment settings
   message_retention_duration = "3600s" # 60 minutes
-  ack_deadline_seconds       = 20
+  ack_deadline_seconds       = 60
 
   # Enable exactly once delivery for reliability
   enable_exactly_once_delivery = true
