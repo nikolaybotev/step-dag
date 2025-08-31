@@ -81,8 +81,7 @@ func handler(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
 	log.Printf("Caller Identity: %s", string(callerIdentityJSON))
 
 	// Create Pub/Sub client
-	var pubsubClient *pubsub.Client
-	pubsubClient, err = pubsub.NewClient(ctx, gcpProjectID)
+	pubsubClient, err := pubsub.NewClient(ctx, gcpProjectID)
 	if err != nil {
 		return LambdaResponse{
 			Message:    "Error occurred while triggering DAG",
@@ -93,8 +92,8 @@ func handler(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
 	}
 	defer pubsubClient.Close()
 
-	// Get the topic
-	topic := pubsubClient.Publisher(pubsubTopicID)
+	// Get the publisher client
+	publisher := pubsubClient.Publisher(pubsubTopicID)
 
 	// Prepare the message data
 	messageData := MessageData{
@@ -119,15 +118,15 @@ func handler(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
 	log.Printf("Publishing message to Pub/Sub: %s", string(messageJSON))
 
 	// Publish the message
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	publishCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	result := topic.Publish(ctx, &pubsub.Message{
+	result := publisher.Publish(publishCtx, &pubsub.Message{
 		Data: messageJSON,
 	})
 
 	// Wait for the message to be published
-	messageID, err := result.Get(ctx)
+	messageID, err := result.Get(publishCtx)
 	if err != nil {
 		return LambdaResponse{
 			Message:    "Error occurred while triggering DAG",
