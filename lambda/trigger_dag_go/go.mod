@@ -5,7 +5,8 @@ go 1.25
 require (
 	cloud.google.com/go/pubsub/v2 v2.0.0
 	github.com/aws/aws-lambda-go v1.49.0
-	github.com/aws/aws-sdk-go-v2/service/sts v1.38.1
+	github.com/aws/aws-sdk-go-v2/config v1.31.6
+	github.com/aws/aws-sdk-go-v2/service/sts v1.38.2
 )
 
 require (
@@ -14,11 +15,16 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.8.0 // indirect
 	cloud.google.com/go/iam v1.5.2 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.38.2 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.5 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.5 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.38.3 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.10 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.29.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.34.2 // indirect
 	github.com/aws/smithy-go v1.23.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

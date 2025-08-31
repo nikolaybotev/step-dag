@@ -10,6 +10,7 @@ import (
 
 	"cloud.google.com/go/pubsub/v2"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
@@ -66,7 +67,17 @@ func handler(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
 	log.Printf("GCP Project ID: %s", gcpProjectID)
 
 	// Get caller identity to verify WIF is working
-	stsClient := sts.New(sts.Options{})
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return LambdaResponse{
+			Message:    "Error occurred while triggering DAG",
+			Error:      fmt.Sprintf("Failed to load AWS config: %v", err),
+			ErrorClass: "ConfigError",
+			Success:    false,
+		}, nil
+	}
+
+	stsClient := sts.NewFromConfig(cfg)
 	callerIdentity, err := stsClient.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
 		return LambdaResponse{
