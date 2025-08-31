@@ -12,7 +12,7 @@ resource "aws_lambda_function" "timestamp" {
   function_name    = "${var.project_name}-${var.environment}-timestamp"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.lambda_handler"
-  runtime          = var.lambda_runtime
+  runtime          = var.lambda_runtime_python
   timeout          = 30
 
   environment {

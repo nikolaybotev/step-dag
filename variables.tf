@@ -71,11 +71,18 @@ variable "composer_node_count" {
 }
 
 # Lambda Variables
-variable "lambda_runtime" {
+variable "lambda_runtime_python" {
   description = "Python runtime version for Lambda functions"
   type        = string
   default     = "python3.12"
 }
+
+variable "lambda_runtime_go" {
+  description = "Go runtime version for Lambda functions"
+  type        = string
+  default     = "provided.al2023"
+}
+
 variable "airflow_webserver_secret_key" {
   description = "Secret key for Airflow webserver security"
   type        = string

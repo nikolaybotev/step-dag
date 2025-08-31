@@ -17,7 +17,7 @@ resource "aws_lambda_function" "trigger_dag" {
   function_name    = "${var.project_name}-${var.environment}-trigger-dag"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.lambda_handler"
-  runtime          = var.lambda_runtime
+  runtime          = var.lambda_runtime_python
   timeout          = 60
 
   environment {
