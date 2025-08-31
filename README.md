@@ -35,27 +35,32 @@ This Terraform project demonstrates how to use both AWS and GCP providers to cre
    - Uncomment and set AWS credentials if not using AWS CLI
    - Uncomment and set GCP credentials file path if not using gcloud CLI
 
-3. **Run the lambda build**
+3. **Create and activate the python environment**:
+
+  ```bash
+  python3.12 -m venv .venv
+  source .venv/bin/activate
+  ```
+
+4. **Run the lambda build**:
 
   ```bash
   cd lambda
-  python3.12 -m venv .venv
-  source .venv/bin/activate
   ./build.sh
   cd ..
   ```
 
-3. **Initialize Terraform**:
+5. **Initialize Terraform**:
    ```bash
    terraform init
    ```
 
-4. **Plan the deployment**:
+6. **Plan the deployment**:
    ```bash
    terraform plan
    ```
 
-5. **Apply the configuration**:
+7. **Apply the configuration**:
    ```bash
    terraform apply
    ```
