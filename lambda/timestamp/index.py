@@ -29,9 +29,10 @@ def lambda_handler(event, context):
         # Format date in a human-readable way
         formatted_date = now.strftime('%B %d, %Y at %I:%M:%S %p UTC')
         
-        # Process the input from previous step
-        input_message = event.get('message', 'No message received')
-        input_timestamp = event.get('timestamp', 'No timestamp received')
+        # Process the input from previous step (now nested under helloWorldResult)
+        hello_world_result = event.get('helloWorldResult', {})
+        input_message = hello_world_result.get('message', 'No message received')
+        input_timestamp = hello_world_result.get('timestamp', 'No timestamp received')
         
         result = {
             "message": f"Timestamp task completed at {formatted_date}",

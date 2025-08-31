@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     try:
         # Simulate some processing
         message = "Hello, World! This is a Step Function Lambda task."
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(datetime.timezone.utc).isoformat()
         
         result = {
             "message": message,

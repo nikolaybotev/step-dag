@@ -11,6 +11,7 @@ resource "aws_sfn_state_machine" "hello_world" {
       "HelloWorld" = {
         Type     = "Task"
         Resource = aws_lambda_function.hello_world.arn
+        ResultPath = "$.helloWorldResult"
         Next     = "WaitState"
         Catch = [
           {
@@ -29,6 +30,7 @@ resource "aws_sfn_state_machine" "hello_world" {
       "TimestampState" = {
         Type     = "Task"
         Resource = aws_lambda_function.timestamp.arn
+        ResultPath = "$.timestampResult"
         Next     = "TriggerAirflowDAGInit"
         Catch = [
           {
@@ -43,7 +45,7 @@ resource "aws_sfn_state_machine" "hello_world" {
         Parameters = {
           "retry_count": 0
         }
-        ResultPath = "$.retry_count"
+        ResultPath = "$.airflowDagConfig"
         Next = "WaitBeforeTriggerAirflowDAG"
       }
 
@@ -56,6 +58,7 @@ resource "aws_sfn_state_machine" "hello_world" {
       "TriggerAirflowDAG" = {
         Type     = "Task"
         Resource = aws_lambda_function.trigger_dag_go.arn
+        ResultPath = "$.triggerResult"
         Next     = "CheckDAGTriggerResult"
         Retry = [
           {
@@ -77,7 +80,7 @@ resource "aws_sfn_state_machine" "hello_world" {
         Type = "Choice"
         Choices = [
           {
-            Variable      = "$.success"
+            Variable      = "$.triggerResult.success"
             BooleanEquals = true
             Next          = "SuccessState"
           }
@@ -89,7 +92,7 @@ resource "aws_sfn_state_machine" "hello_world" {
         Type = "Choice"
         Choices = [
           {
-            Variable        = "$.retry_count"
+            Variable        = "$.airflowDagConfig.retry_count"
             NumericLessThan = 3
             Next            = "IncrementRetryCountAirflowDAG"
           }
@@ -100,10 +103,9 @@ resource "aws_sfn_state_machine" "hello_world" {
       "IncrementRetryCountAirflowDAG" = {
         Type = "Pass"
         Parameters = {
-          "retry_count.$": "States.MathAdd($.retry_count, 1)"
-          "workflow_id.$": "$.workflow_id"
-          "execution_id.$": "$.execution_id"
+          "retry_count.$": "States.MathAdd($.airflowDagConfig.retry_count, 1)"
         }
+        ResultPath = "$.airflowDagConfig"
         Next = "WaitBeforeTriggerAirflowDAG"
       }
 
