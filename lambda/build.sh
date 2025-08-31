@@ -82,16 +82,13 @@ build_lambda_function() {
     
     # Create build directory
     local build_dir="$source_path/build"
-    if [ -d "$build_dir" ]; then
-        rm -rf "$build_dir"
-    fi
     mkdir -p "$build_dir"
     
     # Install dependencies if requirements.txt exists
     local requirements_file="$source_path/requirements.txt"
     if [ -f "$requirements_file" ]; then
         print_info "Installing dependencies for $source_dir"
-        pip3 install -r "$requirements_file" -t "$build_dir" --platform manylinux2014_x86_64 --only-binary=:all:
+        pip3 install -r "$requirements_file" -t "$build_dir" --platform manylinux2014_x86_64 --only-binary=:all: --upgrade
     else
         print_info "No requirements.txt found, skipping dependencies"
     fi
