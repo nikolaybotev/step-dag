@@ -119,11 +119,6 @@ output "gcp_composer_step_function_role_arn" {
   value       = aws_iam_role.gcp_composer_step_function_role.arn
 }
 
-output "gcp_oidc_provider_arn" {
-  description = "ARN of the OIDC identity provider for GCP"
-  value       = aws_iam_openid_connect_provider.gcp_oidc.arn
-}
-
 output "composer_service_account_unique_id" {
   description = "Unique ID of the Composer service account for WIF"
   value       = google_service_account.composer_sa.unique_id

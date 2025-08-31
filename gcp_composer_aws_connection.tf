@@ -2,6 +2,7 @@
 # This sets up the AWS connection with WIF credentials for triggering Step Functions
 
 # Create a local file with AWS connection configuration
+# See https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/connections/aws.html#configuring-the-connection
 resource "local_file" "aws_connection_config" {
   filename = "${path.module}/dags/aws_connection_config.json"
   content = jsonencode({
@@ -19,7 +20,6 @@ resource "local_file" "aws_connection_config" {
 
   depends_on = [
     aws_iam_role.gcp_composer_step_function_role,
-    aws_iam_openid_connect_provider.gcp_oidc,
     google_service_account.composer_sa
   ]
 }

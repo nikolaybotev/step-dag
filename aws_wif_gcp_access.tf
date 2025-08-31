@@ -1,27 +1,8 @@
 # AWS IAM Role with WebIdentity for GCP to AWS authentication
 # This allows GCP Composer to assume an AWS IAM role and trigger Step Functions
 
-# OIDC Identity Provider for Google Cloud
-resource "aws_iam_openid_connect_provider" "gcp_oidc" {
-  url = "https://accounts.google.com"
-
-  client_id_list = [
-    "https://www.googleapis.com/auth/cloud-platform"
-  ]
-
-  thumbprint_list = [
-    "a031c46782e6e6c662c2c87c76da9aa62ccabd8e"  # Google's OIDC thumbprint
-  ]
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-gcp-oidc"
-    Environment = var.environment
-    Project     = var.project_name
-    Purpose     = "gcp-to-aws-federation"
-  }
-}
-
 # IAM Role for GCP Composer to assume
+# See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-idp_oidc.html#idp_oidc_Prerequisites
 resource "aws_iam_role" "gcp_composer_step_function_role" {
   name = "${var.project_name}-${var.environment}-gcp-composer-sf-role"
 
@@ -31,7 +12,7 @@ resource "aws_iam_role" "gcp_composer_step_function_role" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.gcp_oidc.arn
+          Federated = "accounts.google.com"
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
