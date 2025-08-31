@@ -168,7 +168,8 @@ resource "aws_iam_role_policy" "step_function_policy" {
         Resource = [
           aws_lambda_function.hello_world.arn,
           aws_lambda_function.timestamp.arn,
-          aws_lambda_function.trigger_dag.arn
+          aws_lambda_function.trigger_dag.arn,
+          aws_lambda_function.trigger_dag_go.arn
         ]
       }
     ]
