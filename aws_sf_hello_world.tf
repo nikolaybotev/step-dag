@@ -55,7 +55,7 @@ resource "aws_sfn_state_machine" "hello_world" {
 
       "TriggerAirflowDAG" = {
         Type     = "Task"
-        Resource = aws_lambda_function.trigger_dag.arn
+        Resource = aws_lambda_function.trigger_dag_go.arn
         Next     = "CheckDAGTriggerResult"
         Retry = [
           {
