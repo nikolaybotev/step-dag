@@ -5,7 +5,7 @@ data "aws_caller_identity" "current" {}
 
 # Workload Identity Federation - AWS Workload Identity Pool
 resource "google_iam_workload_identity_pool" "aws_pool" {
-  workload_identity_pool_id = "${var.project_name}-${var.environment}-aws-pool"
+  workload_identity_pool_id = "${var.project_name}-${var.environment}-aws-pool-1"
   display_name              = "AWS Workload Identity Pool"
   description               = "Identity pool for AWS Lambda to access Google Cloud"
 }
