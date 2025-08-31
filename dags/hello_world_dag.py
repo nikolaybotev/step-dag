@@ -5,10 +5,12 @@ A simple example DAG that demonstrates basic Airflow concepts.
 
 from datetime import datetime, timedelta
 import json
+import os
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
+from airflow.providers.amazon.aws.operators.step_function import StepFunctionStartExecutionOperator
 
 # Default arguments for the DAG
 default_args = {
@@ -90,10 +92,25 @@ bash_task = BashOperator(
     dag=dag,
 )
 
+# AWS Step Function trigger task
+trigger_aws_step_function = StepFunctionStartExecutionOperator(
+    task_id='trigger_aws_step_function',
+    state_machine_arn=os.environ.get('AWS_STEP_FUNCTION_ARN'),
+    name='hello-world-from-gcp-{{ ts_nodash }}',
+    input={
+        'source': 'gcp-composer',
+        'triggered_by': 'hello_world_dag',
+        'trigger_time': '{{ ts }}',
+        'dag_run_id': '{{ dag_run.run_id }}'
+    },
+    aws_conn_id='aws_default',  # This will use the WIF credentials
+    dag=dag,
+)
+
 end_task = EmptyOperator(
     task_id='end',
     dag=dag,
 )
 
 # Define task dependencies
-start_task >> hello_task >> timestamp_task >> bash_task >> end_task
+start_task >> hello_task >> timestamp_task >> bash_task >> trigger_aws_step_function >> end_task

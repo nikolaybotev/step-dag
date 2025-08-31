@@ -19,13 +19,13 @@ resource "google_composer_environment" "composer_env" {
         GCP_PROJECT_ID      = var.gcp_project_id
         GCP_REGION          = var.gcp_region
         PUBSUB_SUBSCRIPTION = google_pubsub_subscription.hello_world_trigger_subscription.name
+        AWS_STEP_FUNCTION_ARN = aws_sfn_state_machine.hello_world.arn
       }
 
       # Python dependencies (optional)
-      # pypi_packages = {
-      #   "pandas" = "==2.0.3"
-      #   "numpy"  = "==1.24.3"
-      # }
+      pypi_packages = {
+        "apache-airflow-providers-amazon" = "==9.12.0"
+      }
     }
 
     node_config {
