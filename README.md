@@ -54,9 +54,7 @@ This Terraform project demonstrates how to use both AWS and GCP providers to cre
 5. **Run the lambda build**:
 
   ```bash
-  cd lambda
-  ./build.sh
-  cd ..
+  ./lambda/build.sh
   ```
 
 6. **Initialize Terraform**:
