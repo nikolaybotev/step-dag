@@ -5,6 +5,13 @@ resource "google_pubsub_topic_iam_member" "wif_direct_access_pubsub_publisher" {
   member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_assumed_role/${aws_iam_role.lambda_role.name}/${aws_lambda_function.trigger_dag.function_name}"
 }
 
+# Grant the pubsub.publisher role to the AWS IAM role of the Trigger DAG Go Lambda.
+resource "google_pubsub_topic_iam_member" "wif_direct_access_pubsub_publisher_go" {
+  topic  = google_pubsub_topic.hello_world_trigger_topic.name
+  role   = "roles/pubsub.publisher"
+  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.aws_pool.name}/attribute.aws_assumed_role/${aws_iam_role.lambda_role.name}/${aws_lambda_function.trigger_dag_go.function_name}"
+}
+
 # Generate Google Cloud client library configuration file for WIF
 resource "local_file" "wif_direct_access" {
   filename = "${path.module}/lambda/trigger_dag/build/wif_direct_access.json"
