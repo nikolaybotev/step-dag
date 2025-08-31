@@ -74,10 +74,12 @@ def lambda_handler(event, context):
         return result
         
     except Exception as error:
-        logger.error(f'Error in Trigger DAG Lambda: {error}')
+        error_class = error.__class__.__name__
+        logger.error(f'Error in Trigger DAG Lambda: {error_class}: {error}')
         
         return {
             "message": "Error occurred while triggering DAG",
             "error": str(error),
+            "error_class": error_class,
             "success": False
         }
