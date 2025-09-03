@@ -9,10 +9,10 @@ resource "aws_sfn_state_machine" "hello_world_end" {
 
     States = {
       "HelloWorld" = {
-        Type     = "Task"
-        Resource = aws_lambda_function.hello_world.arn
+        Type       = "Task"
+        Resource   = aws_lambda_function.hello_world.arn
         ResultPath = "$.helloWorldResult"
-        End     = true
+        End        = true
         Catch = [
           {
             ErrorEquals = ["States.ALL"]

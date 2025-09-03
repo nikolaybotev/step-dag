@@ -9,10 +9,10 @@ resource "aws_sfn_state_machine" "hello_world_start" {
 
     States = {
       "HelloWorld" = {
-        Type     = "Task"
-        Resource = aws_lambda_function.hello_world.arn
+        Type       = "Task"
+        Resource   = aws_lambda_function.hello_world.arn
         ResultPath = "$.helloWorldResult"
-        Next     = "WaitState"
+        Next       = "WaitState"
         Catch = [
           {
             ErrorEquals = ["States.ALL"]
@@ -28,10 +28,10 @@ resource "aws_sfn_state_machine" "hello_world_start" {
       }
 
       "TimestampState" = {
-        Type     = "Task"
-        Resource = aws_lambda_function.timestamp.arn
+        Type       = "Task"
+        Resource   = aws_lambda_function.timestamp.arn
         ResultPath = "$.timestampResult"
-        Next     = "TriggerAirflowDAGInit"
+        Next       = "TriggerAirflowDAGInit"
         Catch = [
           {
             ErrorEquals = ["States.ALL"]
@@ -43,10 +43,10 @@ resource "aws_sfn_state_machine" "hello_world_start" {
       "TriggerAirflowDAGInit" = {
         Type = "Pass"
         Parameters = {
-          "retry_count": 0
+          "retry_count" : 0
         }
         ResultPath = "$.airflowDagConfig"
-        Next = "WaitBeforeTriggerAirflowDAG"
+        Next       = "WaitBeforeTriggerAirflowDAG"
       }
 
       "WaitBeforeTriggerAirflowDAG" = {
@@ -56,13 +56,13 @@ resource "aws_sfn_state_machine" "hello_world_start" {
       }
 
       "TriggerAirflowDAG" = {
-        Type     = "Task"
-        Resource = aws_lambda_function.trigger_dag_go.arn
+        Type       = "Task"
+        Resource   = aws_lambda_function.trigger_dag_go.arn
         ResultPath = "$.triggerResult"
-        Next     = "CheckDAGTriggerResult"
+        Next       = "CheckDAGTriggerResult"
         Retry = [
           {
-            ErrorEquals = ["States.ALL"]
+            ErrorEquals     = ["States.ALL"]
             IntervalSeconds = 2
             MaxAttempts     = 3
             BackoffRate     = 2.0
@@ -103,10 +103,10 @@ resource "aws_sfn_state_machine" "hello_world_start" {
       "IncrementRetryCountAirflowDAG" = {
         Type = "Pass"
         Parameters = {
-          "retry_count.$": "States.MathAdd($.airflowDagConfig.retry_count, 1)"
+          "retry_count.$" : "States.MathAdd($.airflowDagConfig.retry_count, 1)"
         }
         ResultPath = "$.airflowDagConfig"
-        Next = "WaitBeforeTriggerAirflowDAG"
+        Next       = "WaitBeforeTriggerAirflowDAG"
       }
 
       "SuccessState" = {

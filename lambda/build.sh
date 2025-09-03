@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAMBDA_DIR="$SCRIPT_DIR"
 
 # List of Lambda functions to build
-LAMBDA_FUNCTIONS=("hello_world" "timestamp" "trigger_dag")
+LAMBDA_FUNCTIONS=("hello_world" "timestamp" "trigger_dag" "trigger_sf")
 
 # Colors for output
 RED='\033[0;31m'

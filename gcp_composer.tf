@@ -19,6 +19,7 @@ resource "google_composer_environment" "composer_env" {
         GCP_PROJECT_ID        = var.gcp_project_id
         GCP_REGION            = var.gcp_region
         PUBSUB_SUBSCRIPTION   = google_pubsub_subscription.hello_world_trigger_subscription.name
+        PUBSUB_TOPIC          = google_pubsub_topic.hello_world_sf_trigger_topic.name
         AWS_STEP_FUNCTION_ARN = aws_sfn_state_machine.hello_world_end.arn
       }
 

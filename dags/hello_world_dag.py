@@ -6,11 +6,19 @@ A simple example DAG that demonstrates basic Airflow concepts.
 from datetime import datetime, timedelta
 import json
 import os
+import logging
 from airflow import DAG
+from airflow.decorators import task
+from airflow.operators.python import get_current_context
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.amazon.aws.operators.step_function import StepFunctionStartExecutionOperator
+from airflow.providers.google.cloud.operators.pubsub import PubSubPublishMessageOperator
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # Default arguments for the DAG
 default_args = {
@@ -18,10 +26,25 @@ default_args = {
     'depends_on_past': False,
     'start_date': datetime(2024, 1, 1),
     'email_on_failure': False,
-    'email_on_retry': False,
+    'email_on_retry': False, 
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
+
+def encode_message(message) -> bytes:
+    print(f"Raw message: {message}")
+    logger.info(f"Raw message: {message}")
+    logger.info(f"Raw message type: {type(message)}")
+
+    json_message = json.dumps(message)
+    logger.info(f"Encoded message: {json_message}")
+    logger.info(f"Encoded message type: {type(json_message)}")
+
+    binary_encoded_message = json_message.encode('utf-8')
+    logger.info(f"Binary encoded message: {binary_encoded_message}")
+    logger.info(f"Binary encoded message type: {type(binary_encoded_message)}")
+    return binary_encoded_message
+
 
 # Define the DAG
 dag = DAG(
@@ -30,6 +53,7 @@ dag = DAG(
     description='A simple Hello World DAG',
     schedule_interval=timedelta(days=1),
     catchup=False,
+    user_defined_macros={"encode_message": encode_message},
     tags=['example', 'hello-world'],
 )
 
@@ -118,20 +142,61 @@ bash_task = BashOperator(
     dag=dag,
 )
 
-# AWS Step Function trigger task
-trigger_aws_step_function = StepFunctionStartExecutionOperator(
+# AWS Step Function trigger task (direct)
+trigger_aws_step_function_direct = StepFunctionStartExecutionOperator(
     task_id='trigger_aws_step_function',
     state_machine_arn=os.environ.get('AWS_STEP_FUNCTION_ARN'),
-    name='gcp-{{ ts_nodash }}-{{ ti.xcom_pull(task_ids="hello_world").workflow_id|string|replace(" ", "_") }}-{{ ti.xcom_pull(task_ids="hello_world").execution_id|string|replace(" ", "_") }}',
+    name='gcp-direct-{{ ts_nodash }}-{{ ti.xcom_pull(task_ids="hello_world").workflow_id|string|replace(" ", "_") }}-{{ ti.xcom_pull(task_ids="hello_world").execution_id|string|replace(" ", "_") }}',
     state_machine_input={
-        'source': 'gcp-composer',
+        'source': 'gcp-composer-direct',
         'triggered_by': 'hello_world_dag',
         'trigger_time': '{{ ts }}',
         'dag_run_id': '{{ dag_run.run_id }}',
         'workflow_id': '{{ ti.xcom_pull(task_ids="hello_world").workflow_id }}',
-        'execution_id': '{{ ti.xcom_pull(task_ids="hello_world").execution_id }}'
+        'execution_id': '{{ ti.xcom_pull(task_ids="hello_world").execution_id }}',
+        'custom_message': '{{ ti.xcom_pull(task_ids="hello_world").custom_message }}',
+        'timestamp': '{{ ts }}',
+        'trigger_type': 'direct'
     },
     aws_conn_id='aws_default',  # This will use the WIF credentials
+    dag=dag,
+)
+
+@task
+def create_pubsub_message():
+    """Create Pub/Sub message with proper JSON encoding at runtime"""
+    context = get_current_context()
+    # Get XCom data from hello_world task
+    hello_result = context['ti'].xcom_pull(task_ids='hello_world') or {}
+
+    # Create the message data
+    message_data = {
+        'name': f"gcp-pubsub-{context['ts_nodash']}-{str(hello_result.get('workflow_id', 'unknown')).replace(' ', '_')}-{str(hello_result.get('execution_id', 'unknown')).replace(' ', '_')}",
+        'source': 'hello_world_dag',
+        'triggered_by': 'hello_world_dag',
+        'trigger_time': context['ts'],
+        'dag_run_id': context['dag_run'].run_id,
+        'workflow_id': hello_result.get('workflow_id', 'unknown'),
+        'execution_id': hello_result.get('execution_id', 'unknown'),
+        'custom_message': hello_result.get('custom_message', ''), 
+        'timestamp': context['ts'],
+        'trigger_type': 'pubsub'
+    }
+    
+    # Return the JSON-encoded message as bytes
+    return message_data
+
+pubsub_message = create_pubsub_message()
+
+# AWS Step Function trigger task (Pub/Sub)
+trigger_aws_step_function_pubsub = PubSubPublishMessageOperator(
+    task_id='publish_pubsub_message',
+    topic=os.environ.get('PUBSUB_TOPIC', 'hello-world-trigger-topic'),
+    messages=[
+        {
+            "data": '{{ encode_message(ti.xcom_pull(task_ids="create_pubsub_message")) }}',
+        },
+    ],
     dag=dag,
 )
 
@@ -141,4 +206,5 @@ end_task = EmptyOperator(
 )
 
 # Define task dependencies
-start_task >> hello_task >> timestamp_task >> bash_task >> trigger_aws_step_function >> end_task
+bash_task >> pubsub_message
+start_task >> hello_task >> timestamp_task >> bash_task >> [pubsub_message >> trigger_aws_step_function_pubsub, trigger_aws_step_function_direct] >> end_task

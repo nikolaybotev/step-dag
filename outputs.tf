@@ -61,6 +61,17 @@ output "trigger_dag_lambda_arn" {
   value       = aws_lambda_function.trigger_dag.arn
 }
 
+# Pub/Sub Step Function Trigger Lambda Outputs
+output "pubsub_trigger_lambda_name" {
+  description = "Name of the Pub/Sub Step Function Trigger Lambda function"
+  value       = aws_lambda_function.trigger_sf_lambda.function_name
+}
+
+output "pubsub_trigger_lambda_arn" {
+  description = "ARN of the Pub/Sub Step Function Trigger Lambda function"
+  value       = aws_lambda_function.trigger_sf_lambda.arn
+}
+
 # Workload Identity Federation Outputs
 output "workload_identity_pool_id" {
   description = "Workload Identity Pool ID for AWS to GCP federation"
