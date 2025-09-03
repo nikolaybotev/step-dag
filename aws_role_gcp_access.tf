@@ -48,7 +48,7 @@ resource "aws_iam_role_policy" "gcp_composer_step_function_policy" {
           "states:StopExecution"
         ]
         Resource = [
-          aws_sfn_state_machine.hello_world.arn
+          aws_sfn_state_machine.simple_hello_world.arn
         ]
       }
     ]

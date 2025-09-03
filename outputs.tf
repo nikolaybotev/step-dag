@@ -14,6 +14,22 @@ output "step_function_url" {
   value       = "https://console.aws.amazon.com/states/home?region=${var.aws_region}#/statemachines/view/${aws_sfn_state_machine.hello_world.arn}"
 }
 
+# Simple Step Function Outputs
+output "simple_step_function_name" {
+  description = "Name of the Simple Hello World Step Function state machine"
+  value       = aws_sfn_state_machine.simple_hello_world.name
+}
+
+output "simple_step_function_arn" {
+  description = "ARN of the Simple Hello World Step Function state machine"
+  value       = aws_sfn_state_machine.simple_hello_world.arn
+}
+
+output "simple_step_function_url" {
+  description = "URL to access the Simple Hello World Step Function in AWS Console"
+  value       = "https://console.aws.amazon.com/states/home?region=${var.aws_region}#/statemachines/view/${aws_sfn_state_machine.simple_hello_world.arn}"
+}
+
 # Lambda Function Outputs
 output "hello_world_lambda_name" {
   description = "Name of the Hello World Lambda function"
