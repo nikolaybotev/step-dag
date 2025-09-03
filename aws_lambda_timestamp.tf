@@ -31,11 +31,11 @@ resource "aws_lambda_function" "timestamp" {
 
 # CloudWatch Log Group for Timestamp Lambda
 resource "aws_cloudwatch_log_group" "timestamp_lambda_logs" {
-  name              = "/aws/lambda/${aws_lambda_function.timestamp.function_name}"
+  name              = "/aws/lambda/${var.aws_region}/${aws_lambda_function.timestamp.function_name}"
   retention_in_days = 14
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-timestamp-logs"
+    Name        = "${var.project_name}-${var.environment}-${var.aws_region}-timestamp-logs"
     Environment = var.environment
     Project     = var.project_name
   }

@@ -39,11 +39,11 @@ resource "aws_lambda_function" "trigger_dag" {
 
 # CloudWatch Log Group for Trigger DAG Lambda
 resource "aws_cloudwatch_log_group" "trigger_dag_lambda_logs" {
-  name              = "/aws/lambda/${aws_lambda_function.trigger_dag.function_name}"
+  name              = "/aws/lambda/${var.aws_region}/${aws_lambda_function.trigger_dag.function_name}"
   retention_in_days = 14
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-trigger-dag-logs"
+    Name        = "${var.project_name}-${var.environment}-${var.aws_region}-trigger-dag-logs"
     Environment = var.environment
     Project     = var.project_name
   }

@@ -31,11 +31,11 @@ resource "aws_lambda_function" "hello_world" {
 
 # CloudWatch Log Group for Hello World Lambda
 resource "aws_cloudwatch_log_group" "hello_world_lambda_logs" {
-  name              = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
+  name              = "/aws/lambda/${var.aws_region}/${aws_lambda_function.hello_world.function_name}"
   retention_in_days = 14
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-hello-world-logs"
+    Name        = "${var.project_name}-${var.environment}-${var.aws_region}-hello-world-logs"
     Environment = var.environment
     Project     = var.project_name
   }
