@@ -1,6 +1,6 @@
 # AWS Step Function - Hello World Workflow
-resource "aws_sfn_state_machine" "hello_world" {
-  name     = "${var.project_name}-${var.environment}-hello-world-sf"
+resource "aws_sfn_state_machine" "hello_world_start" {
+  name     = "${var.project_name}-${var.environment}-hello-world-start-sf"
   role_arn = aws_iam_role.step_function_role.arn
 
   definition = jsonencode({
@@ -123,10 +123,10 @@ resource "aws_sfn_state_machine" "hello_world" {
   })
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-hello-world-sf"
+    Name        = "${var.project_name}-${var.environment}-hello-world-start-sf"
     Environment = var.environment
     Project     = var.project_name
-    Purpose     = "hello-world-workflow"
+    Purpose     = "hello-world-start-workflow"
   }
 }
 
